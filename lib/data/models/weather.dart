@@ -1,30 +1,17 @@
+import 'package:flutter_weather_app_clean_architecture/data/models/weather_sub.dart';
 import 'package:flutter_weather_app_clean_architecture/domain/entities/weather.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'weather.g.dart';
-
-@JsonSerializable()
 class WeatherModel extends WeatherEntity {
-  @override
-  final WeatherCoordModel? coord;
-  @override
-  final List<WeatherDescModel>? desc;
-  @override
-  final WeatherMainModel? main;
-  @override
-  final WeatherWindModel? wind;
-  @override
-  final WeatherSysModel? sys;
-
   const WeatherModel({
-    this.coord,
-    this.desc,
+    WeatherCoordModel? coord,
+    List<WeatherDescModel>? desc,
     String? base,
-    this.main,
+    WeatherMainModel? main,
     double? visibility,
-    this.wind,
+    WeatherCloudsModel? clouds,
+    WeatherWindModel? wind,
     int? dt,
-    this.sys,
+    WeatherSysModel? sys,
     int? timezone,
     int? id,
     String? name,
@@ -35,6 +22,7 @@ class WeatherModel extends WeatherEntity {
           base: base,
           main: main,
           visibility: visibility,
+          clouds: clouds,
           wind: wind,
           dt: dt,
           sys: sys,
@@ -44,75 +32,43 @@ class WeatherModel extends WeatherEntity {
           cod: cod,
         );
 
-  factory WeatherModel.fromJson(Map<String, dynamic> json) => _$WeatherModelFromJson(json);
+  factory WeatherModel.fromJson(Map<String, dynamic> json) {
+    return WeatherModel(
+      coord: WeatherCoordModel.fromJson(json['coord']),
+      desc: (json['weather'] as List<dynamic>)
+          .map((weather) => WeatherDescModel.fromJson(weather))
+          .toList(),
+      base: json['base'],
+      main: WeatherMainModel.fromJson(json['main']),
+      visibility: (json['visibility'] as num?)?.toDouble(),
+      clouds: WeatherCloudsModel.fromJson(json['clouds']),
+      wind: WeatherWindModel.fromJson(json['wind']),
+      dt: (json['dt'] as num?)?.toInt(),
+      sys: WeatherSysModel.fromJson(json['sys']),
+      timezone: (json['timezone'] as num?)?.toInt(),
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'],
+      cod: (json['cod'] as num?)?.toInt(),
+    );
+  }
 
-  Map<String, dynamic> toJson() => _$WeatherModelToJson(this);
-}
-
-@JsonSerializable()
-class WeatherCoordModel extends WeatherCoordEntity {
-  const WeatherCoordModel({
-    super.lat,
-    super.lon,
-  });
-
-  factory WeatherCoordModel.fromJson(Map<String, dynamic> json) => _$WeatherCoordModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WeatherCoordModelToJson(this);
-}
-
-@JsonSerializable()
-class WeatherDescModel extends WeatherDescEntity {
-  const WeatherDescModel({
-    super.id,
-    super.main,
-    super.description,
-    super.icon,
-  });
-
-  factory WeatherDescModel.fromJson(Map<String, dynamic> json) => _$WeatherDescModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WeatherDescModelToJson(this);
-}
-
-@JsonSerializable()
-class WeatherMainModel extends WeatherMainEntity {
-  const WeatherMainModel({
-    super.temp,
-    super.feelsLike,
-    super.tempMin,
-    super.pressure,
-    super.humidity,
-  });
-
-  factory WeatherMainModel.fromJson(Map<String, dynamic> json) => _$WeatherMainModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WeatherMainModelToJson(this);
-}
-
-@JsonSerializable()
-class WeatherWindModel extends WeatherWindEntity {
-  const WeatherWindModel({
-    super.speed,
-    super.deg,
-    super.gust,
-  });
-
-  factory WeatherWindModel.fromJson(Map<String, dynamic> json) => _$WeatherWindModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WeatherWindModelToJson(this);
-}
-
-@JsonSerializable()
-class WeatherSysModel extends WeatherSysEntity {
-  const WeatherSysModel({
-    super.type,
-    super.id,
-    super.sunrise,
-    super.sunset,
-  });
-
-  factory WeatherSysModel.fromJson(Map<String, dynamic> json) => _$WeatherSysModelFromJson(json);
-
-  Map<String, dynamic> toJson() => _$WeatherSysModelToJson(this);
+  Map<String, dynamic> toJson() {
+    return {
+      'coord': (coord as WeatherCoordModel).toJson(),
+      'weather': desc!
+          .map((weather) => (weather as WeatherDescModel).toJson())
+          .toList(),
+      'base': base,
+      'main': (main as WeatherMainModel).toJson(),
+      'visibility': visibility,
+      'clouds': (clouds as WeatherCloudsModel).toJson(),
+      'wind': (wind as WeatherWindModel).toJson(),
+      'dt': dt,
+      'sys': (sys as WeatherSysModel).toJson(),
+      'timezone': timezone,
+      'id': id,
+      'name': name,
+      'cod': cod,
+    };
+  }
 }
